@@ -7,17 +7,28 @@
 // 
 
 
+import { ApolloClient } from 'apollo-client';
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { HttpLink } from 'apollo-link-http';
 
-fetch('http://localhost:4000/graphql', {
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
-    'Accept': 'application/json',
-  },
-  body: JSON.stringify({ query: "{ users { id username email}}" })
-}).then(r => r.json())
-  .then(res => addData(res));
+import gql from 'graphql-tag';
 
+const client = new ApolloClient({
+  link: new HttpLink({ uri: 'http://localhost:4000/graphql' }),
+  cache: new InMemoryCache()
+})
+
+client.query({
+  query: gql`{
+       users {
+         username
+         email
+       }
+    }
+  `
+})
+  .then(res => addData(res))
+  .catch(error => console.log(error));
 
 function addData(res) {
   const body = document.querySelector('body');
